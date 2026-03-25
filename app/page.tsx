@@ -1,65 +1,85 @@
-import Image from "next/image";
+import { useState } from "react";
+import { motion } from "framer-motion";
 
-export default function Home() {
+export default function ChatMockup() {
+  const [messages, setMessages] = useState([
+    { from: "bot", text: "Tere! Kuidas saame aidata?" }
+  ]);
+  const [step, setStep] = useState(0);
+
+  const handleOption = (option) => {
+    let newMessages = [...messages, { from: "user", text: option }];
+
+    if (step === 0) {
+      newMessages.push({ from: "bot", text: "Kas olete äriklient või eraisik?" });
+      setStep(1);
+    } else if (step === 1) {
+      newMessages.push({ from: "bot", text: "Palun kirjeldage oma projekti või probleemi" });
+      setStep(2);
+    } else if (step === 2) {
+      if (option.toLowerCase().includes("firma") || option.toLowerCase().includes("ettevõte")) {
+        newMessages.push({ from: "bot", text: "⚡ Tuvastasime ärikliendi. Teie päring on prioriteetne ja edastatud spetsialistile." });
+      } else {
+        newMessages.push({ from: "bot", text: "Aitäh! Võtame teiega ühendust esimesel võimalusel." });
+      }
+    }
+
+    setMessages(newMessages);
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div className="fixed bottom-6 right-6 w-80">
+      <div className="bg-white shadow-2xl rounded-2xl overflow-hidden border">
+        <div className="bg-black text-white p-3 font-semibold">TERA AI Assistent</div>
+
+        <div className="p-3 h-80 overflow-y-auto space-y-2">
+          {messages.map((msg, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className={`p-2 rounded-xl max-w-[75%] ${
+                msg.from === "bot" ? "bg-gray-100" : "bg-black text-white ml-auto"
+              }`}
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+              {msg.text}
+            </motion.div>
+          ))}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+
+        <div className="p-3 border-t space-y-2">
+          {step === 0 && (
+            <>
+              <button onClick={() => handleOption("Elektritööd")} className="w-full bg-gray-100 p-2 rounded-xl">Elektritööd</button>
+              <button onClick={() => handleOption("Hinnapakkumine")} className="w-full bg-gray-100 p-2 rounded-xl">Hinnapakkumine</button>
+              <button onClick={() => handleOption("Elektriavarii")} className="w-full bg-red-500 text-white p-2 rounded-xl">Elektriavarii</button>
+            </>
+          )}
+
+          {step === 1 && (
+            <>
+              <button onClick={() => handleOption("Äriklient")}
+                className="w-full bg-black text-white p-2 rounded-xl">Äriklient</button>
+              <button onClick={() => handleOption("Eraisik")}
+                className="w-full bg-gray-100 p-2 rounded-xl">Eraisik</button>
+            </>
+          )}
+
+          {step === 2 && (
+            <input
+              type="text"
+              placeholder="Kirjeldage oma probleemi..."
+              className="w-full border p-2 rounded-xl"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleOption(e.target.value);
+                  e.target.value = "";
+                }
+              }}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+          )}
         </div>
-      </main>
+      </div>
     </div>
   );
 }
